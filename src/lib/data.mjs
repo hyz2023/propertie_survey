@@ -67,6 +67,56 @@ const properties = [
   }
 ];
 
+const propertyReports = {
+  'chenyao-garden': {
+    title: '保利天曜楼盘调研报告',
+    summary: '基于阳光家缘官方备案/销控、高德位置线索和第三方辅助价格线索整理；官方事实与辅助线索分开呈现。',
+    sections: [
+      {
+        heading: '官方事实',
+        items: [
+          '营销名“保利天曜”对应阳光家缘备案名“晨曜花园”。',
+          '官方返回 9 个备案项目/楼栋，开发商一致为守鸿置地（广州）有限公司。',
+          '官方合计已售 656 套、未售 271 套，按已售/未售粗算去化率约 70.77%。'
+        ]
+      },
+      {
+        heading: '价格边界',
+        items: [
+          '阳光家缘公开接口未稳定暴露单楼盘长期真实成交价序列，因此不伪造成交价曲线。',
+          '第三方平台价格只能作为辅助市场线索，不能等同于官方网签成交价。'
+        ]
+      },
+      {
+        heading: '后续补充',
+        items: ['补充高德 GIS 通勤/POI 表格。', '补充正式 HTML 报告附件下载入口。']
+      }
+    ]
+  },
+  'xipai-tianhe': {
+    title: '西派天河序楼盘调研报告',
+    summary: '基于阳光家缘备案名“雅序苑”、官方销控和高德 GIS 线索整理。',
+    sections: [
+      {
+        heading: '官方事实',
+        items: [
+          '营销名“西派天河序”对应阳光家缘备案名“雅序苑”。',
+          '官方返回 14 个备案项目/楼栋，开发商为广州市天河区顺信房地产有限公司。',
+          '官方合计已售 512 套、未售 210 套，粗算去化率约 70.9%。'
+        ]
+      },
+      {
+        heading: 'GIS 事实',
+        items: ['高德定位到牛利岗北街23号附近。', '到梅花园地铁站步行约 674m/9分钟。']
+      },
+      {
+        heading: '价格边界',
+        items: ['官方公开数据未提供可直接用于单盘价格曲线的长期成交价序列，因此不伪造成交价曲线。']
+      }
+    ]
+  }
+};
+
 const staff = [
   {
     slug: 'demo-sales-01',
@@ -119,4 +169,73 @@ export function getPropertiesForStaff(member) {
   return member.assignedPropertySlugs
     .map((slug) => getPropertyBySlug(slug))
     .filter(Boolean);
+}
+
+export function getPropertyReport(slug) {
+  return propertyReports[slug] ?? null;
+}
+
+function splitLines(value) {
+  return String(value ?? '')
+    .split(/\r?\n|[,，]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function slugifyName(value) {
+  const phrases = [
+    ['测试', 'ceshi'],
+    ['楼盘', 'loupan']
+  ];
+  let mapped = String(value ?? '').trim();
+  for (const [from, to] of phrases) {
+    mapped = mapped.replaceAll(from, ` ${to} `);
+  }
+  const dictionary = {
+    '测': 'ce',
+    '试': 'shi',
+    '楼': 'lou',
+    '盘': 'pan'
+  };
+  mapped = mapped
+    .split('')
+    .map((char) => dictionary[char] ?? char)
+    .join('');
+  return mapped
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'new-property';
+}
+
+function parseMetrics(value) {
+  return String(value ?? '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [label, ...rest] = line.split(/[=:：]/);
+      return { label: label.trim(), value: rest.join('=').trim() || '待补充' };
+    });
+}
+
+export function buildPropertyRecordFromForm(form) {
+  const name = String(form.name ?? '').trim() || '新楼盘';
+  return {
+    slug: String(form.slug ?? '').trim() || slugifyName(name),
+    name,
+    marketingName: String(form.marketingName ?? '').trim() || name,
+    registeredName: String(form.registeredName ?? '').trim() || '待补充',
+    district: String(form.district ?? '').trim() || '待补充',
+    address: String(form.address ?? '').trim() || '待补充',
+    developer: String(form.developer ?? '').trim() || '待补充',
+    status: String(form.status ?? '').trim() || '待核验',
+    sourceType: String(form.sourceType ?? '').trim() || '待补充',
+    updatedAt: String(form.updatedAt ?? '').trim() || new Date().toISOString().slice(0, 10),
+    metrics: parseMetrics(form.metrics),
+    highlights: splitLines(form.highlights),
+    risks: splitLines(form.risks),
+    tags: splitLines(form.tags),
+    sourceUrls: [],
+    nextActions: splitLines(form.nextActions)
+  };
 }

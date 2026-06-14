@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getProperties, getPropertyBySlug } from '../../../lib/data.mjs';
+import { getProperties, getPropertyBySlug, getPropertyReport } from '../../../lib/data.mjs';
 
 export function generateStaticParams() {
   return getProperties().map((property) => ({ slug: property.slug }));
@@ -16,6 +16,7 @@ export default async function PropertyDetailPage({ params }) {
   const { slug } = await params;
   const property = getPropertyBySlug(slug);
   if (!property) notFound();
+  const report = getPropertyReport(slug);
 
   return (
     <div className="page">
@@ -39,6 +40,13 @@ export default async function PropertyDetailPage({ params }) {
           <h2>核心指标</h2>
           <div className="metrics">{property.metrics.map((metric) => <div className="metric" key={metric.label}><b>{metric.value}</b><span>{metric.label}</span></div>)}</div>
         </article>
+        {report ? <article className="card full report-card">
+          <h2>{report.title}</h2>
+          <p>{report.summary}</p>
+          <div className="report-grid">
+            {report.sections.map((section) => <section key={section.heading} className="report-section"><h3>{section.heading}</h3><ul className="list">{section.items.map((item) => <li key={item}>{item}</li>)}</ul></section>)}
+          </div>
+        </article> : null}
         <article className="card"><h2>客观亮点</h2><ul className="list">{property.highlights.map((item) => <li key={item}>{item}</li>)}</ul></article>
         <article className="card"><h2>风险与边界</h2><ul className="list">{property.risks.map((item) => <li key={item}>{item}</li>)}</ul></article>
         <article className="card">

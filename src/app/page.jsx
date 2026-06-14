@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getDashboardStats, getProperties, getStaffList, propertyUrl, staffUrl } from '../lib/data.mjs';
 
 function Nav() {
-  return <nav className="nav"><Link href="/" className="brand">楼盘资料库</Link><div className="nav-links"><Link href="/properties">楼盘</Link><Link href="/staff">店员</Link></div></nav>;
+  return <nav className="nav"><Link href="/" className="brand">楼盘资料库</Link><div className="nav-links"><Link href="/properties">楼盘</Link><Link href="/staff">店员</Link><Link href="/admin">录入助手</Link></div></nav>;
 }
 
 export default function HomePage() {

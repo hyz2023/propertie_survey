@@ -16,8 +16,10 @@ npm run dev
 - 楼盘详情：`http://localhost:3000/properties/chenyao-garden`
 - 店员列表：`http://localhost:3000/staff`
 - 店员详情：`http://localhost:3000/staff/demo-sales-01`
+- 录入助手：`http://localhost:3000/admin`
 - 楼盘 API：`http://localhost:3000/api/properties`
 - 单楼盘 API：`http://localhost:3000/api/properties/chenyao-garden`
+- 单楼盘报告 API：`http://localhost:3000/api/properties/chenyao-garden/report`
 - 店员 API：`http://localhost:3000/api/staff`
 
 ## Vercel 部署
@@ -61,6 +63,10 @@ src/lib/data.mjs
 新增后访问：`/properties/new-property`。
 
 新增店员：往 `staff` 数组追加记录，并用 `assignedPropertySlugs` 关联楼盘。
+
+## 录入助手
+
+访问 `/admin` 可以用表单录入新楼盘，页面会实时生成标准 JSON，并可保存到当前浏览器 localStorage 草稿。当前版本没有接数据库，所以表单不会直接写入线上仓库；把 JSON 发给维护者后，可追加到 `src/lib/data.mjs` 并重新部署。
 
 ## 数据原则
 
